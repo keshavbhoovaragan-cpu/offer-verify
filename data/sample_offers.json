@@ -1,0 +1,38 @@
+[
+  {
+    "offer_id": "offer_001",
+    "merchant_id": "m_acme",
+    "product_key": "sku_hoodie_black_m",
+    "product_title": "Acme Fleece Hoodie, Black, Medium",
+    "claimed_price": 39.99,
+    "claimed_in_stock": true,
+    "claimed_attributes": {"color": "black", "size": "M"}
+  },
+  {
+    "offer_id": "offer_002",
+    "merchant_id": "m_acme",
+    "product_key": "sku_hoodie_black_l",
+    "product_title": "Acme Fleece Hoodie, Black, Large",
+    "claimed_price": 25.00,
+    "claimed_in_stock": true,
+    "claimed_attributes": {"color": "black", "size": "L"}
+  },
+  {
+    "offer_id": "offer_003",
+    "merchant_id": "m_grainhouse",
+    "product_key": "sku_granola_original",
+    "product_title": "Grainhouse Original Granola, 12oz",
+    "claimed_price": 6.49,
+    "claimed_in_stock": true,
+    "claimed_attributes": {"gluten_free": false}
+  },
+  {
+    "offer_id": "offer_004",
+    "merchant_id": "m_grainhouse",
+    "product_key": "sku_granola_gf",
+    "product_title": "Grainhouse Gluten-Free Granola, 12oz",
+    "claimed_price": 7.99,
+    "claimed_in_stock": false,
+    "claimed_attributes": {"gluten_free": true}
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "product_key": "sku_hoodie_black_m",
+    "merchant_id": "m_acme",
+    "canonical_title": "Acme Fleece Hoodie, Black, Medium",
+    "true_price": 39.99,
+    "true_in_stock": true,
+    "true_attributes": {"color": "black", "size": "M"},
+    "evidence_text": null
+  },
+  {
+    "product_key": "sku_hoodie_black_l",
+    "merchant_id": "m_acme",
+    "canonical_title": "Acme Fleece Hoodie, Black, Large",
+    "true_price": 44.99,
+    "true_in_stock": true,
+    "true_attributes": {"color": "black", "size": "L"},
+    "evidence_text": null
+  },
+  {
+    "product_key": "sku_granola_original",
+    "merchant_id": "m_grainhouse",
+    "canonical_title": "Grainhouse Original Granola, 12oz",
+    "true_price": 6.49,
+    "true_in_stock": true,
+    "true_attributes": {},
+    "evidence_text": "Ingredients: rolled oats, whole wheat flour, honey, almonds, sunflower oil, cinnamon."
+  },
+  {
+    "product_key": "sku_granola_gf",
+    "merchant_id": "m_grainhouse",
+    "canonical_title": "Grainhouse Gluten-Free Granola, 12oz",
+    "true_price": 7.99,
+    "true_in_stock": true,
+    "true_attributes": {},
+    "evidence_text": "Ingredients: certified gluten-free rolled oats, honey, almonds, sunflower oil, cinnamon. Made in a dedicated gluten-free facility."
+  }
+]

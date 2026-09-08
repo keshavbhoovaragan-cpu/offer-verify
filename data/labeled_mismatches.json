@@ -1,0 +1,7 @@
+{
+  "mismatched_offer_ids": ["offer_002", "offer_004"],
+  "notes": {
+    "offer_002": "Price claimed $25.00, true price is $44.99. Should be caught by the price rule.",
+    "offer_004": "Stock claimed false, true_in_stock is true. Won't be caught until check_stock is implemented (ROADMAP.md step 1). The gluten_free claim on this offer is actually accurate, that's not the mismatch."
+  }
+}

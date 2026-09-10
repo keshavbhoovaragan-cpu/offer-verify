@@ -63,7 +63,17 @@ def test_stock_match_is_not_a_mismatch():
     mismatch = check_stock(offer, source)
     assert mismatch is None
 
-def test_check_structured_attributes_not_implemented_yet():
-    # Remove this test once you implement it in ROADMAP.md step 2.
-    with pytest.raises(NotImplementedError):
-        check_structured_attributes(make_offer(), make_source())
+def test_attribute_mismatch_is_detected():
+    offer = make_offer(claimed_attributes={"color": "black"})
+    source = make_source(true_attributes={"color": "red"})
+    mismatches = check_structured_attributes(offer, source)
+    assert len(mismatches) == 1
+    assert mismatches[0].field == "attribute:color"
+    assert mismatches[0].claimed == "black"
+    assert mismatches[0].actual == "red"
+
+def test_matching_attributes_returns_empty_list():
+    offer = make_offer(claimed_attributes={"color": "black"})
+    source = make_source(true_attributes={"color": "black"})
+    mismatches = check_structured_attributes(offer, source)
+    assert mismatches == []

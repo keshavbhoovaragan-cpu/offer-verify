@@ -40,15 +40,21 @@ def check_stock(offer: Offer, source: SourceRecord) -> Mismatch | None:
 
 
 def check_structured_attributes(offer: Offer, source: SourceRecord) -> list[Mismatch]:
-    """TODO: implement this.
+    mismatches = []
+    for key, claimed_value in offer.claimed_attributes.items():
+        if key not in source.true_attributes:
+            continue
 
-    For attributes in offer.claimed_attributes that have a directly comparable
-    value in source.true_attributes (e.g. color, size, model number), compare
-    them directly. Attributes that require interpreting free text (e.g.
-    "gluten_free" against an ingredient list) don't belong here, that's
-    src/llm_judge.py's job. Return a list because an offer can have multiple
-    attribute mismatches at once.
-    """
-    raise NotImplementedError(
-        "check_structured_attributes is not implemented yet - see ROADMAP.md step 2"
-    )
+        true_value = source.true_attributes[key]
+
+        if claimed_value != true_value:
+            mismatches.append(
+                Mismatch(
+                    field=f"attribute:{key}",
+                    claimed=claimed_value,
+                    actual=true_value,
+                    detected_by="rule"
+                )
+            )
+
+    return mismatches

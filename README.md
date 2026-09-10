@@ -32,19 +32,33 @@ two-tier design:
 
 ## What's implemented vs. what's yours to build
 
-Implemented, so the project runs end to end from the start:
+Implemented:
 - Data models (`src/schema.py`)
 - Loading and joining offers against the source feed (`src/loader.py`)
-- One working rule: price-tolerance matching (`src/rules.py`)
+- Rule-tier checks: price tolerance, stock match, structured attribute match (`src/rules.py`)
 - The metrics harness (`src/metrics.py`)
 - A CLI to run the pipeline (`src/cli.py`)
 
-Left as TODOs for you, on purpose, see `ROADMAP.md` for a suggested commit-by-commit
-order:
-- The stock-mismatch and attribute-mismatch rules
-- The LLM-as-judge tier for fuzzy attribute claims
-- Tuning the confidence threshold against the labeled mismatch set in `data/labeled_mismatches.json`
-- Whatever you find missing once you try to make precision/recall actually good
+Left as TODOs, see `ROADMAP.md`:
+- The LLM-as-judge tier for unstructured attribute claims (`src/llm_judge.py`)
+- Tuning the confidence threshold against `data/labeled_mismatches.json`
+- Precision heuristics once the LLM judge is in place
+
+## Current results
+
+Rule-tier only, against the 7 sample offers in `data/`:
+
+| Metric | Value |
+|---|---|
+| Precision | 1.00 |
+| Recall | 0.80 |
+| F1 | 0.89 |
+
+The rule tier catches every price and stock mismatch, with zero false positives.
+It structurally can't catch claims that need interpreting free text: `offer_005`
+claims `vegan: true`, but the ingredient evidence shows whey protein isolate.
+Since `vegan` never appears as a structured attribute, no rule sees it, that's
+exactly the gap the LLM judge tier is meant to close.
 
 ## Running it
 

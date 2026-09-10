@@ -7,7 +7,7 @@ LABELED_PATH = "data/labeled_mismatches.json"
 
 def test_load_offers():
     offers = load_offers(OFFERS_PATH)
-    assert len(offers) == 4
+    assert len(offers) == 7
     assert offers[0].offer_id == "offer_001"
 
 

@@ -1,7 +1,10 @@
 {
-  "mismatched_offer_ids": ["offer_002", "offer_004"],
+  "mismatched_offer_ids": ["offer_002", "offer_004", "offer_005", "offer_006", "offer_007"],
   "notes": {
     "offer_002": "Price claimed $25.00, true price is $44.99. Should be caught by the price rule.",
-    "offer_004": "Stock claimed false, true_in_stock is true. Won't be caught until check_stock is implemented (ROADMAP.md step 1). The gluten_free claim on this offer is actually accurate, that's not the mismatch."
+    "offer_004": "Stock claimed false, true_in_stock is true. Won't be caught until check_stock is implemented (ROADMAP.md step 1). The gluten_free claim on this offer is actually accurate, that's not the mismatch.",
+    "offer_005": "Claims vegan=true but evidence_text shows whey protein isolate, not vegan. Won't be caught until the LLM judge is implemented (ROADMAP.md step 4) - vegan isn't a structured attribute.",
+    "offer_006": "Price claimed $49.99, true price is $79.99. Should be caught by the price rule.",
+    "offer_007": "Stock claimed true, true_in_stock is false. Should be caught by the check_stock rule."
   }
 }

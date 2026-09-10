@@ -34,5 +34,32 @@
     "true_in_stock": true,
     "true_attributes": {},
     "evidence_text": "Ingredients: certified gluten-free rolled oats, honey, almonds, sunflower oil, cinnamon. Made in a dedicated gluten-free facility."
+  },
+  {
+    "product_key": "sku_granola_protein",
+    "merchant_id": "m_grainhouse",
+    "canonical_title": "Grainhouse Protein Granola, 12oz",
+    "true_price": 8.99,
+    "true_in_stock": true,
+    "true_attributes": {},
+    "evidence_text": "Ingredients: rolled oats, whey protein isolate, honey, almonds, sunflower oil."
+  },
+  {
+    "product_key": "sku_earbuds_wireless",
+    "merchant_id": "m_techgear",
+    "canonical_title": "TechGear Wireless Earbuds",
+    "true_price": 79.99,
+    "true_in_stock": true,
+    "true_attributes": {"color": "white"},
+    "evidence_text": null
+  },
+  {
+    "product_key": "sku_phone_case_clear",
+    "merchant_id": "m_techgear",
+    "canonical_title": "TechGear Clear Phone Case",
+    "true_price": 14.99,
+    "true_in_stock": false,
+    "true_attributes": {"color": "clear"},
+    "evidence_text": null
   }
 ]

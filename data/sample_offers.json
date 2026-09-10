@@ -34,5 +34,32 @@
     "claimed_price": 7.99,
     "claimed_in_stock": false,
     "claimed_attributes": {"gluten_free": true}
+  },
+  {
+    "offer_id": "offer_005",
+    "merchant_id": "m_grainhouse",
+    "product_key": "sku_granola_protein",
+    "product_title": "Grainhouse Protein Granola, 12oz",
+    "claimed_price": 8.99,
+    "claimed_in_stock": true,
+    "claimed_attributes": {"vegan": true}
+  },
+  {
+    "offer_id": "offer_006",
+    "merchant_id": "m_techgear",
+    "product_key": "sku_earbuds_wireless",
+    "product_title": "TechGear Wireless Earbuds",
+    "claimed_price": 49.99,
+    "claimed_in_stock": true,
+    "claimed_attributes": {"color": "white"}
+  },
+  {
+    "offer_id": "offer_007",
+    "merchant_id": "m_techgear",
+    "product_key": "sku_phone_case_clear",
+    "product_title": "TechGear Clear Phone Case",
+    "claimed_price": 14.99,
+    "claimed_in_stock": true,
+    "claimed_attributes": {"color": "clear"}
   }
 ]

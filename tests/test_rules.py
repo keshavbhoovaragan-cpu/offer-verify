@@ -47,11 +47,21 @@ def test_price_outside_tolerance_is_a_mismatch():
     assert mismatch.actual == 44.99
 
 
-def test_check_stock_not_implemented_yet():
-    # Remove this test once you implement check_stock in ROADMAP.md step 1.
-    with pytest.raises(NotImplementedError):
-        check_stock(make_offer(), make_source())
+def test_stock_mismatch_is_detected():
+    offer = make_offer(claimed_in_stock=True)
+    source = make_source(true_in_stock=False)
+    mismatch = check_stock(offer, source)
+    assert mismatch is not None
+    assert mismatch.field == "in_stock"
+    assert mismatch.claimed is True
+    assert mismatch.actual is False
 
+
+def test_stock_match_is_not_a_mismatch():
+    offer = make_offer(claimed_in_stock=True)
+    source = make_source(true_in_stock=True)
+    mismatch = check_stock(offer, source)
+    assert mismatch is None
 
 def test_check_structured_attributes_not_implemented_yet():
     # Remove this test once you implement it in ROADMAP.md step 2.

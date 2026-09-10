@@ -28,12 +28,15 @@ def check_price(offer: Offer, source: SourceRecord) -> Mismatch | None:
 
 
 def check_stock(offer: Offer, source: SourceRecord) -> Mismatch | None:
-    """TODO: implement this.
+    if offer.claimed_in_stock == source.true_in_stock:
+        return None
 
-    Compare offer.claimed_in_stock against source.true_in_stock and return a
-    Mismatch if they disagree. Write the test in tests/test_rules.py first.
-    """
-    raise NotImplementedError("check_stock is not implemented yet - see ROADMAP.md step 1")
+    return Mismatch(
+        field="in_stock",
+        claimed=offer.claimed_in_stock,
+        actual=source.true_in_stock,
+        detected_by="rule"
+    )
 
 
 def check_structured_attributes(offer: Offer, source: SourceRecord) -> list[Mismatch]:

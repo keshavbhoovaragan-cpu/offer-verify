@@ -36,13 +36,79 @@ Implemented:
 - Data models (`src/schema.py`)
 - Loading and joining offers against the source feed (`src/loader.py`)
 - Rule-tier checks: price tolerance, stock match, structured attribute match (`src/rules.py`)
-- The metrics harness (`src/metrics.py`)
-- A CLI to run the pipeline (`src/cli.py`)
-
-Left as TODOs, see `ROADMAP.md`:
 - The LLM-as-judge tier for unstructured attribute claims (`src/llm_judge.py`)
-- Tuning the confidence threshold against `data/labeled_mismatches.json`
-- Precision heuristics once the LLM judge is in place
+- Verifier wiring + confidence thresholding between the two tiers (`src/verifier.py`)
+- The metrics harness, including a batch summary report (`src/metrics.py`)
+- A CLI to run the pipeline, with per-offer verdicts and a batch summary (`src/cli.py`)
+
+Open item, see "Confidence threshold" below: the threshold is a reasoned
+default, not yet tuned against real judge output, because this was built in
+a sandbox with no `ANTHROPIC_API_KEY` configured. The judge and its
+thresholding logic are covered by tests against a mocked client
+(`tests/test_llm_judge.py`, `tests/test_verifier.py`), but nobody has run
+`python -m src.cli ... --labeled data/labeled_mismatches.json` against the
+real model yet. See "Running it" for how to do that.
+
+## LLM judge tier
+
+`src/llm_judge.py` handles attribute claims `check_structured_attributes`
+can't resolve - the key isn't in `source.true_attributes` at all, so no rule
+ever sees it (e.g. `vegan`, `gluten_free` when only free-text evidence
+exists). Design choices:
+
+- **Evidence handed to the model**: exactly `source.evidence_text`, nothing
+  more. It's the only ground truth available for unstructured claims in this
+  schema, and augmenting it with anything else would mean inventing
+  evidence that isn't actually there.
+- **Missing evidence short-circuits before the API call.** If
+  `evidence_text` is `None` or empty, there's nothing to judge the claim
+  against, so `judge_attribute_claim` returns immediately with
+  `confidence=0.0` rather than asking the model to guess. That confidence
+  value is what lets the verifier's thresholding logic (below) treat it as
+  "unverifiable" instead of "confirmed false."
+- **Output shape**: `{"is_match": bool, "confidence": float, "rationale": str}`
+  rather than a bare yes/no, so the verifier has something to threshold on
+  and the rationale is preserved for later auditing (`verdict.judged_attributes`).
+- **Parsing is defensive**: the model may wrap the JSON in markdown fences or
+  add prose around it. `_extract_json` strips fences, then falls back to the
+  outermost `{...}` span. If parsing still fails, the result reads as
+  unverifiable (`confidence=0.0`) rather than raising - one malformed
+  response shouldn't crash a batch run.
+- **Model**: `claude-sonnet-5`, thinking disabled. This is a short,
+  single-shot classification call (return one JSON object), not an agentic
+  or long-horizon task, so a cheaper model with no reasoning overhead is the
+  right fit rather than defaulting to the most capable model.
+
+## Confidence threshold
+
+`LLM_CONFIDENCE_THRESHOLD` in `src/verifier.py` is currently **0.7**. Below
+that, a judge's `is_match=False` is treated as "the model wasn't sure" and
+the claim is left unverified rather than flagged as a mismatch - a
+low-confidence "no" and a high-confidence "no" are different claims, and
+collapsing them trades false negatives for false positives without actually
+improving anything.
+
+This value is a reasoned starting point, not yet measured: 0.7 sits above
+"more likely than not" but below "the model is basically certain," which
+seemed like a defensible place to separate "confidently wrong" from "just
+unsure" without more data. It has **not** been tuned against real judge
+output - the sandbox this was built in has no API credentials, so
+`judge_attribute_claim` has only been exercised against a mocked client (see
+`tests/test_llm_judge.py`). If you have an `ANTHROPIC_API_KEY`, the way to
+tune it for real:
+
+```bash
+export ANTHROPIC_API_KEY=sk-...
+python -m src.cli --offers data/sample_offers.json --source data/sample_source_feed.json \
+    --labeled data/labeled_mismatches.json
+```
+
+Look at the confidence distribution in the summary output and the `--labeled`
+score. If the judge is producing high-confidence `is_match=False` calls that
+aren't in `labeled_mismatches.json` (false positives), raise the threshold.
+If real mismatches are landing in the "unverifiable" bucket because the
+judge hedged (false negatives), lower it. Whatever you land on, update this
+section with the number and what you saw that justified it.
 
 ## Current results
 
@@ -60,13 +126,34 @@ claims `vegan: true`, but the ingredient evidence shows whey protein isolate.
 Since `vegan` never appears as a structured attribute, no rule sees it, that's
 exactly the gap the LLM judge tier is meant to close.
 
+**With the LLM judge tier wired in**: not yet measured end-to-end against
+the real model (see "Confidence threshold" above for why). The code path
+that should catch `offer_005` - `vegan: true` claimed, evidence shows whey
+protein isolate - is implemented and unit-tested against a mocked client,
+but the actual precision/recall/F1 with a live judge, and what it catches or
+misses beyond `offer_005`, is unmeasured. Run the command above with a real
+API key and fill in this table with what you find.
+
 ## Running it
 
 ```bash
 pip install -r requirements.txt
-pytest                     # should pass out of the box
+pytest                     # should pass out of the box, no API key needed - the LLM tier is mocked in tests
+
+# Rule tier only (no offer in the sample data needs the LLM tier except offer_005):
 python -m src.cli --offers data/sample_offers.json --source data/sample_source_feed.json
+
+# Full pipeline including the LLM judge tier - needs ANTHROPIC_API_KEY:
+export ANTHROPIC_API_KEY=sk-...
+python -m src.cli --offers data/sample_offers.json --source data/sample_source_feed.json \
+    --labeled data/labeled_mismatches.json
 ```
+
+The CLI prints a per-offer verdict, then (with `--labeled`) a precision/recall/F1
+score, then a batch summary: mismatch rate by category (price / stock /
+structured-attribute / llm-judged), how many offers were escalated to the LLM
+tier vs. resolved by rules alone, and the confidence distribution of judged
+claims.
 
 ## Project structure
 
@@ -80,12 +167,14 @@ offer-verify/
     schema.py       data models
     loader.py        loads + joins offers to source records
     rules.py         deterministic verification rules
-    llm_judge.py      LLM-as-a-rater tier (stub, see TODOs)
-    verifier.py       orchestrates rules + llm_judge into a verdict
-    metrics.py        precision/recall/F1 against labeled_mismatches.json
+    llm_judge.py      LLM-as-a-rater tier for unstructured attribute claims
+    verifier.py       orchestrates rules + llm_judge into a verdict, confidence thresholding
+    metrics.py        precision/recall/F1 against labeled_mismatches.json, batch summary report
     cli.py            entry point
   tests/
     test_rules.py
     test_loader.py
     test_metrics.py
+    test_llm_judge.py    LLM judge parsing/short-circuit logic, against a mocked client
+    test_verifier.py     LLM-tier wiring + confidence thresholding, against a stub judge
 ```

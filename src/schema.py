@@ -6,7 +6,10 @@ is the pipeline's decision about whether an offer's claims hold up.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
+
+if TYPE_CHECKING:
+    from src.llm_judge import JudgeResult
 
 
 @dataclass
@@ -48,3 +51,7 @@ class VerificationVerdict:
     mismatches: list[Mismatch]
     confidence: float  # 0.0-1.0
     method: str  # "rule" | "rule+llm"
+    # (attribute, JudgeResult) for every claim escalated to the LLM tier,
+    # win or lose - an audit trail for tuning the confidence threshold and
+    # investigating misses later. Empty when method == "rule".
+    judged_attributes: list[tuple[str, "JudgeResult"]] = field(default_factory=list)
